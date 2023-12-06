@@ -13,7 +13,7 @@ POST http://192.168.68.154:3000/produtos
 content-type: application/json
 
 {
-  "nome": "Melancia"
+  "nome": "Mari"
 }
 
 ###
