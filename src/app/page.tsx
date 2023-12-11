@@ -1,63 +1,80 @@
 "use client";
 import { log } from "console";
-import { useState } from "react";
-import{api} from '../../services/api'
+import { useState, useEffect, use } from "react";
+import { api } from "../../services/api";
 
-const initialItens = [
-  { id: 1, nome: "Banana" },
-  { id: 2, nome: "Uva" },
-];
+interface Product {
+  id: number;
+  nome: string;
+}
 
 export default function Home() {
-  const [itens, setItens] = useState(initialItens);
-  const [textInput, setTextInput] = useState('');
-  const data = {nome: textInput};
+  const [loading, setLoading] = useState(false);
+  const [textInput, setTextInput] = useState("");
+  const [items, setItens] = useState<Product[]>([]);
+  // const data = {nome: textInput};
 
-  async function handleClick() {
-    const response = await api.get("/produtos");
-    console.log(response);
-    setItens(response.data);
-   // const response = await fetch("http://192.168.68.154:3000/produtos");
-    //const produtos = await response.json();
-    //setItens(produtos);
-    //console.log(produtos);
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  useEffect(() => {
+    console.log("O código está passando por aqui");
+  }, [textInput]);
+
+  async function loadItems() {
+    setLoading(true);
+    setTimeout(async()=>{
+      try {
+        const response = await api.get("/produtos");
+        console.log(response);
+        setItens(response.data);
+      } catch (error) {
+        console.log("Error: ", error);
+      }
+      finally {
+        setLoading(false);
+      }
+    }, 2000)
+    
   }
+
   async function handleAddItem() {
     console.log(textInput);
-    console.log("Adicionando um novo item");
+    const data = { nome: textInput };
 
     try {
-      const response = await fetch("http://192.168.68.154:3000/produtos", {
-        method: "POST", // or 'PUT'
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-  
-      const result = await response.json();
-      console.log("Success:", result);
+      const response = await api.post("/produtos", data);
+
+      loadItems();
+      console.log("Sucess:", response);
     } catch (error) {
-      console.error("Error:", error);
-      alert("Ocorreu um erro");
-    }
+      console.log("Error:", error);
+    } 
   }
-  
+
+  function handleDeleteItem(idemId: number) {
+    console.log(idemId);
+  }
 
   return (
     <main>
-      <div style={{marginBottom: 10}}>
-        <input 
-        onChange={(e) => setTextInput(e.target.value)} 
-       
-        type="text" placeholder="Digite seu texto aqui..."/>
+      <div style={{ marginBottom: 10 }}>
+        <input
+          onChange={(e) => setTextInput(e.target.value)}
+          type="text"
+          placeholder="Digite seu texto aqui..."
+        />
         <button onClick={handleAddItem}>Enviar</button>
       </div>
-      <button onClick={handleClick}>Buscar informação no servidor</button>
+      <span>{loading && "Carregando.."}</span>
 
       <ul>
-        {itens.map((item) => (
-          <li key={item.id}>{item.nome}</li>
+        {items.map((item) => (
+          <li key={item.id}>
+            {item.nome}
+            <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
+          </li>
         ))}
       </ul>
     </main>
