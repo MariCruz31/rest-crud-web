@@ -6,6 +6,7 @@ import { api } from "../../services/api";
 interface Product {
   id: number;
   nome: string;
+  isEditing: boolean;
 }
 
 export default function Home() {
@@ -41,7 +42,7 @@ export default function Home() {
 
   async function handleAddItem() {
     console.log(textInput);
-    const data = { nome: textInput };
+    const data: Omit<Product, "id"> = { nome: textInput, isEditing: false };
 
     try {
       const response = await api.post("/produtos", data);
@@ -53,8 +54,32 @@ export default function Home() {
     } 
   }
 
-  function handleDeleteItem(idemId: number) {
-    console.log(idemId);
+  async function handleDeleteItem(itemId: number) {
+
+    console.log(itemId);
+
+    try{
+      const response = await api.delete(`/produtos/${itemId}`);
+      console.log(response);
+      const filteredItems = items.filter((item) => item.id !== itemId)
+      setItens(filteredItems)
+      
+    }catch (error) {
+      console.log("Error:", error);
+      
+    }
+  }
+  function handleEditItem(itemId: number) {
+    console.log(itemId);
+
+    const changedItems = items.map((item) => {
+      if (item.id == itemId) {
+        return {...item, isEditing: true };
+      }
+      
+      return item;
+    })
+    setItens(changedItems);
   }
 
   return (
@@ -72,8 +97,10 @@ export default function Home() {
       <ul>
         {items.map((item) => (
           <li key={item.id}>
-            {item.nome}
+            {item.isEditing ? "Item em edição" : item.nome}
+            <button onClick={() => handleEditItem(item.id)}>Edit</button>
             <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
+            
           </li>
         ))}
       </ul>
