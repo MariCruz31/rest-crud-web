@@ -2,26 +2,28 @@
 import { log } from "console";
 import { useState, useEffect, use } from "react";
 import { api } from "../../services/api";
-
+//representa tipo elemento existente no array item
 interface Product {
   id: number;
   nome: string;
 }
-
+//função retorna a função/ roda o codigo
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [items, setItens] = useState<Product[]>([]);
   // const data = {nome: textInput};
 
+  //quando ocorrer um evento qualquer a função loadingitens vai rodar
   useEffect(() => {
     loadItems();
   }, []);
-
+//demostração comofunciona
   useEffect(() => {
     console.log("O código está passando por aqui");
   }, [textInput]);
 
+//função serve para pegar a lista de elementos da api especificada e add ao array itens
   async function loadItems() {
     setLoading(true);
     setTimeout(async()=>{
@@ -38,7 +40,7 @@ export default function Home() {
     }, 2000)
     
   }
-
+//essa função serve para add um elemento na lista do servidor
   async function handleAddItem() {
     console.log(textInput);
     const data = { nome: textInput };
@@ -52,7 +54,7 @@ export default function Home() {
       console.log("Error:", error);
     } 
   }
-
+//essa função serve para retornar o id do elemento especifico no console
   function handleDeleteItem(idemId: number) {
     console.log(idemId);
   }
@@ -69,7 +71,7 @@ export default function Home() {
       </div>
       <span>{loading && "Carregando.."}</span>
 
-      <ul>
+      <ul> {/*retorna os elementos do servidor  */}
         {items.map((item) => (
           <li key={item.id}>
             {item.nome}
